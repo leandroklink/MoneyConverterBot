@@ -32,7 +32,7 @@ Bot simples desenvolvido em Python que realiza conversão de moedas utilizando a
 pip install pyTelegramBotAPI requests
 python RealConverter.py
 
-# Planejo futuramente deixar o código mais profissional com futuras adições.
+Planejo futuramente deixar o código mais profissional com futuras adições.
 
 <img width="1200" height="858" alt="teleBot" src="https://github.com/user-attachments/assets/37964a70-29f9-4aee-beeb-c634007a07ee" />
 
