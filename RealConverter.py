@@ -29,8 +29,13 @@ siglas = ["BRL", "USD", "EUR", "JPY", "GBP", "CAD", "CHF", "AUD", "CNY"]
 
 def calc_cotacao(origem, moeda):
     try:
-        link = f"https://api.exchangerate.host/convert?from={origem}&to={moeda}"
-        response = requests.get(link, timeout=5)
+        url = "https://api.exchangerate.host/convert"
+        params = {
+            "from": origem,
+            "to": moeda
+        }
+
+        response = requests.get(url, params=params, timeout=5)
 
         if response.status_code != 200:
             return None
@@ -40,8 +45,6 @@ def calc_cotacao(origem, moeda):
 
     except Exception:
         return None
-
-
 
 @bot.message_handler(commands=['start'])
 def start(message):
