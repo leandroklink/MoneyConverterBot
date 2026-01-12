@@ -29,11 +29,24 @@ siglas = ["BRL", "USD", "EUR", "JPY", "GBP", "CAD", "CHF", "AUD", "CNY"]
 
 def calc_cotacao(origem, moeda):
     try:
-        link =  f"https://economia.awesomeapi.com.br/json/last/{origem}-{moeda}"
-        resposta = requests.get(link, timeout=5).json()
-        return float(resposta[f"{origem}{moeda}"]["ask"])
+        link = f"https://economia.awesomeapi.com.br/json/last/{origem}-{moeda}"
+        response = requests.get(link, timeout=5)
+
+        if response.status_code != 200:
+            return None
+
+        data = response.json()
+        chave = f"{origem}{moeda}"
+
+        if chave not in data:
+            return None
+
+        return float(data[chave]["ask"])
+
     except Exception:
         return None
+
+
 
 
 @bot.message_handler(commands=['start'])
