@@ -150,4 +150,5 @@ Escolha a moeda de Destino 📌
             bot.send_message(chat_id, "Digite um valor inteiro ou decimal! tente novamente com /start.")
 
 
-bot.polling(none_stop=True)
+bot.stop_polling()
+bot.infinity_polling()
