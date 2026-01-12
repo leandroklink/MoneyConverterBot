@@ -29,23 +29,17 @@ siglas = ["BRL", "USD", "EUR", "JPY", "GBP", "CAD", "CHF", "AUD", "CNY"]
 
 def calc_cotacao(origem, moeda):
     try:
-        link = f"https://economia.awesomeapi.com.br/json/last/{origem}-{moeda}"
+        link = f"https://api.exchangerate.host/convert?from={origem}&to={moeda}"
         response = requests.get(link, timeout=5)
 
         if response.status_code != 200:
             return None
 
         data = response.json()
-        chave = f"{origem}{moeda}"
-
-        if chave not in data:
-            return None
-
-        return float(data[chave]["ask"])
+        return float(data["result"])
 
     except Exception:
         return None
-
 
 
 
