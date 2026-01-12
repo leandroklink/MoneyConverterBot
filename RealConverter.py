@@ -11,7 +11,7 @@ siglas = ["BRL", "USD", "EUR", "JPY", "GBP", "CAD", "CHF", "AUD", "CNY"]
 
 def calc_cotacao(origem, moeda):
     try:
-        link = f"https://economia.awesomeapi.com.br/json/last/{origem}-{moeda}"
+        link =  f"https://economia.awesomeapi.com.br/json/last/{origem}-{moeda}"
         resposta = requests.get(link, timeout=5).json()
         return float(resposta[f"{origem}{moeda}"]["ask"])
     except Exception:
@@ -31,18 +31,22 @@ def start(message):
 
     texto = """
 Olá, eu sou o MoneyConverter! 🚀
+um bot que realiza conversão de moedas com base no valor que você me informar e as moedas que deseja converter.
+
 Escolha a moeda de origem 📍
 
-/BRL Real Brasileiro
-/USD Dólar Americano
+/BRL Real Brasileiro (R$) 
+/USD Dólar Americano (US$)
 /EUR Euro
 /JPY Iene Japonês
-/GBP Libra Esterlina
-/CAD Dólar Canadense
-/CHF Franco Suíço
-/AUD Dólar Australiano
+/GBP Libra Esterlina (£)
+/CAD Dólar Canadense (C$)
+/CHF Franco Suíço (Fr)
+/AUD Dólar Australiano (A$)
 /CNY Yuan Chinês
-"""
+
+(Digitar qualquer outra coisa não vai funcionar)"""
+
     bot.send_message(chat_id, texto)
 
 
@@ -51,58 +55,71 @@ def conversation(message):
     chat_id = message.chat.id
 
     if chat_id not in usuarios:
-        bot.send_message(chat_id, "Digite /start para iniciar 😀")
+        bot.send_message(chat_id, "Digite /start para iniciar! 😀")
         return
-
+    
     etapa = usuarios[chat_id]["etapa"]
-
-    if etapa == 1:
+    if etapa ==1:
         moeda = message.text.replace("/", "").upper()[:3]
 
         if moeda not in siglas:
-            bot.send_message(chat_id, "Moeda inválida. Use /start.")
+            bot.send_message(chat_id, "Mensagem inválida, pressione /start para tentar novamente.")
             return
-
+        
         usuarios[chat_id]["moeda_origem"] = moeda
         usuarios[chat_id]["etapa"] = 2
 
-        bot.send_message(chat_id, "Agora escolha a moeda de destino.")
+        texto = """
+Escolha a moeda de Destino 📌
 
-    elif etapa == 2:
+/BRL Real Brasileiro (R$)
+/USD Dólar Americano (US$)
+/EUR Euro
+/JPY Iene Japonês
+/GBP Libra Esterlina (£)
+/CAD Dólar Canadense (C$)
+/CHF Franco Suíço (Fr)
+/AUD Dólar Australiano (A$)
+/CNY Yuan Chinês
+(Digitar qualquer outra coisa não vai funcionar)"""
+
+        bot.send_message(chat_id, texto)
+
+    elif etapa == 2: 
         moeda = message.text.replace("/", "").upper()[:3]
 
-        if moeda not in siglas:
-            bot.send_message(chat_id, "Moeda inválida. Use /start.")
-            return
 
+        if moeda not in siglas:
+            bot.send_message(chat_id, f"Mensagem inválida, pressione /start para tentar novamente.")
+            return
+        
         origem = usuarios[chat_id]["moeda_origem"]
+        usuarios[chat_id]["moeda_destino"] = moeda
+        
         cotacao = calc_cotacao(origem, moeda)
 
         if cotacao is None:
-            bot.send_message(chat_id, "Erro ao obter cotação.")
+            bot.send_message(chat_id, "Erro ao obter cotação. Tente novamente mais tarde.")
             del usuarios[chat_id]
             return
-
-        usuarios[chat_id]["moeda_destino"] = moeda
         usuarios[chat_id]["cotacao"] = cotacao
-        usuarios[chat_id]["etapa"] = 3
+        
 
-        bot.send_message(chat_id, f"Digite o valor em {origem}.")
+        texto = f"Digite o valor que deseja converter de {origem} para {moeda}."
+        bot.send_message(message.chat.id, texto)
+        usuarios[chat_id]["etapa"] = 3
 
     elif etapa == 3:
         try:
             valor = float(message.text)
-            resultado = valor * usuarios[chat_id]["cotacao"]
-
-            bot.send_message(
-                chat_id,
-                f"Valor convertido: {resultado:.2f}\nDigite /start para nova conversão."
-            )
-
+            cotacao = usuarios[chat_id]["cotacao"]
+            resultado = valor * cotacao
+            texto = f"O valor convertido é {resultado:.2f}, pressione /start para realizar uma nova conversão."
+            bot.send_message(chat_id, texto)
             del usuarios[chat_id]
 
         except ValueError:
-            bot.send_message(chat_id, "Digite um número válido.")
+            bot.send_message(chat_id, "Digite um valor inteiro ou decimal! tente novamente com /start.")
 
 
 bot.polling(none_stop=True)
